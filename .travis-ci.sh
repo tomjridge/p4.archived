@@ -27,7 +27,8 @@ opam init
 opam install ${OPAM_DEPENDS}
 
 eval `opam config env`
-make
+make src_ext
+make build
 # make test
 # FIXME what does this do? makes opam use this particular version?
 # can only pin packages known to opam
