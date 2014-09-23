@@ -1,5 +1,6 @@
 all:
 	echo "Make sure to build src_ext first (e.g. type: make src_ext), then type: make build"
+	exit 1 # force an error to alert user
 
 build: FORCE
 	cd build && make
