@@ -1,5 +1,5 @@
 (**
-{1 P3_core: core P3 definitions}
+{1 P4_core: core P4 definitions}
 
 {2 Prelude}
 *)
@@ -426,7 +426,7 @@ let mkntparser p alts = (
   check_and_upd_lc4 (mkntparser' p alts))
 
 
-module P3_memo = struct
+module P4_memo = struct
 
   type hashkey = int local_context * int ty_span
   type 'a hashvalue = 'a outr
@@ -463,7 +463,7 @@ module P3_memo = struct
 
 end
 
-include P3_memo      
+include P4_memo      
 
 
 

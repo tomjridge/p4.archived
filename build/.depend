@@ -1,0 +1,19 @@
+p4_lib.cmi :
+e3_core.cmo :
+e3_core.cmx :
+p4_basic_parsers.cmo : p4_core.cmo
+p4_basic_parsers.cmx : p4_core.cmx
+p4_core.cmo :
+p4_core.cmx :
+p4_e3_ds.cmo : p4_core.cmo e3_core.cmo
+p4_e3_ds.cmx : p4_core.cmx e3_core.cmx
+p4_e3.cmo : p4_util.cmo p4_e3_ds.cmo p4_core.cmo
+p4_e3.cmx : p4_util.cmx p4_e3_ds.cmx p4_core.cmx
+p4_examples.cmo : p4_lib.cmi
+p4_examples.cmx : p4_lib.cmx
+p4_lib.cmo : p4_util.cmo p4_e3.cmo p4_core.cmo p4_basic_parsers.cmo p4_lib.cmi
+p4_lib.cmx : p4_util.cmx p4_e3.cmx p4_core.cmx p4_basic_parsers.cmx p4_lib.cmi
+p4_test.cmo : p4_e3.cmo p4_core.cmo
+p4_test.cmx : p4_e3.cmx p4_core.cmx
+p4_util.cmo :
+p4_util.cmx :

@@ -2,11 +2,11 @@
 
 
 (**********************************************************************)
-(* P3_core dependencies *)
+(* P4_core dependencies *)
 
-(* P3_core type dependencies *)
+(* P4_core type dependencies *)
 module S = struct 
-  open P3_core
+  open P4_core
 
   type 'a tm = 'a tm_plus
   type 'a nt = 'a nt_plus
@@ -56,7 +56,7 @@ let nt_item_int = (fun ((nt,syms1,syms2,i,j):'a S.nt_item) ->
   | _ -> (sym_list_int syms2,i,j))
 
 let index = 
-  let open P3_core in
+  let open P4_core in
   {
     nt_int = (fun (np:'a S.nt) -> np.np_nt);
     tm_int = (fun (tp:'a S.tm) -> tp.tp_tm);
@@ -107,7 +107,7 @@ let (_: 'a S.nt -> int -> 'a S.nt_item list) = nt_items_for_nt
 
 let mk_ops (_:'string) = (
   let id = fun x -> x in
-  let open P3_core in
+  let open P4_core in
   {
     sym_case       =(S.sym_case:('string S.sym -> [ `NT of 'string S.nt | `TM of 'string S.tm]));
     sym_of_tm      =(fun (tp:'string S.tm) -> TP tp);
@@ -347,7 +347,7 @@ let post_process (s,ctxt) = (
   end)
 
 let earley_full_from_record_type setup0 = (
-  let nt = P3_core.(match setup0.std_sym with | NP np -> np | _ -> failwith "earley_full_from_record_type: start symbol not an nt") in
+  let nt = P4_core.(match setup0.std_sym with | NP np -> np | _ -> failwith "earley_full_from_record_type: start symbol not an nt") in
   let init_items = List.map (fun x -> `NTITM x) (nt_items_for_nt nt 0) in
   let len = setup0.std_length in
   let ctxt = { 
@@ -392,7 +392,7 @@ let earley_full setup0 = (
 
 examples
 
-open P3_core
+open P4_core
 open E3_std
 
 let _E = ref (mkclause (`NT 2))

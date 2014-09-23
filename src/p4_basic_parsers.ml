@@ -1,7 +1,7 @@
-open P3_core
+open P4_core
 
-(* interactively develop this file with P3_lib, so we get better type info 
-open P3_lib
+(* interactively develop this file with P4_lib, so we get better type info 
+open P4_lib
 *)
 
 let memo f = (

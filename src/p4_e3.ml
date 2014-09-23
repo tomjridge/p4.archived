@@ -1,7 +1,7 @@
-open P3_core
+open P4_core
 
 let run_earley p txt len = (
-  let open P3_e3_ds in
+  let open P4_e3_ds in
   let setup0 = { 
     std_sym=p.sp;
     std_string=txt;
@@ -65,12 +65,13 @@ let _ = run_parser3 !_E txt len
 
 
 
+
 (**********************************************************************)
 (* signature - for testing prior to editing p3_lib.{ml,mli} *)
 
 module type T = sig 
 
-open P3_core
+open P4_core
 
 type 'a identified
 
@@ -125,37 +126,37 @@ module I : T = struct
 type 'a identified = 'a
 
 
-type 'a ty_span = 'a P3_core.ty_span
-let content = P3_core.content
+type 'a ty_span = 'a P4_core.ty_span
+let content = P4_core.content
 
 
-type 'a raw_parser = 'a P3_core.raw_parser
-type ('a,'b) raw_act = ('a,'b) P3_core.raw_act
+type 'a raw_parser = 'a P4_core.raw_parser
+type ('a,'b) raw_act = ('a,'b) P4_core.raw_act
 
-type ('a,'b) parser3 = ('a,'b) P3_core.parser3
+type ('a,'b) parser3 = ('a,'b) P4_core.parser3
 
-let mktmparser = P3_core.mktmparser
-
-
-type ('a,'b)rhs = ('a,'b) P3_core.rhs
-
-let rhs = P3_core.rhs
-
-let seq = P3_core.seq
+let mktmparser = P4_core.mktmparser
 
 
-type ('a,'b) alts = ('a,'b) P3_core.alts
+type ('a,'b)rhs = ('a,'b) P4_core.rhs
 
-let alts = P3_core.alts
+let rhs = P4_core.rhs
 
-let mk_pre_parser = P3_core.mk_pre_parser
+let seq = P4_core.seq
 
-let mkntparser = P3_core.mkntparser
+
+type ('a,'b) alts = ('a,'b) P4_core.alts
+
+let alts = P4_core.alts
+
+let mk_pre_parser = P4_core.mk_pre_parser
+
+let mkntparser = P4_core.mkntparser
 
 let run_parser3 = run_parser3
 
 
-let read_file_as_string = Tr_simple_file.read_file_as_string
+let read_file_as_string = P4_util.read_file_as_string
 
 end
 
