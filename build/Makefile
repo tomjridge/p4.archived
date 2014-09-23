@@ -9,6 +9,8 @@ OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_
 WARNINGS=-w -8 #-w -26-8
 COMPFLAGS=$(WARNINGS)
 
+CAMLCINCLUDES=str.cma
+CAMLOPTINCLUDES=str.cmxa
 
 E3=e3_core.cmo
 
@@ -23,7 +25,7 @@ CMO=$(E3) $(P4)
 
 NATIVES=p4_examples.native p4_test.native# 
 
-all: p4.cma p4.cmxa
+all: p4.cma p4.cmxa $(NATIVES)
 
 
 p4.cma: $(CMO)
@@ -32,8 +34,8 @@ p4.cma: $(CMO)
 p4.cmxa: $(CMO:.cmo=.cmx)
 	$(CAMLOPT) -a -o $@ $(CMO:.cmo=.cmx)
 
-$(NATIVES): %.native: %.ml p3.cmxa
-	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ p3.cmxa $<
+$(NATIVES): %.native: %.ml p4.cmxa
+	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ p4.cmxa $<
 
 
 # Default rules
@@ -49,8 +51,8 @@ $(NATIVES): %.native: %.ml p3.cmxa
 	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
 
 
-doc: $(P3)
-	$(OCAMLDOC) -html $(P3:.cmo=.ml)
+doc: $(P4)
+	$(OCAMLDOC) -html $(P4:.cmo=.ml)
 
 
 depend:
