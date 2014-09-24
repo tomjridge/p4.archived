@@ -2,7 +2,7 @@ SHELL=bash
 
 E3_LINK=../../e3
 E3_URL=https://github.com/tomjridge/e3.git
-
+BRANCH=master
 
 all: 
 	echo "Please link the e3 repository into this directory (see the rest of this Makefile for example)"
@@ -15,7 +15,7 @@ e3_link:
 # use this to checkout e3 from git
 e3_from_git:
 	echo "Attempting to clone e3 repo from $(E3_URL)"
-	git clone --depth 1 $(E3_URL)
+	git clone -b $(BRANCH) --depth 1 $(E3_URL)
 
 clean:
 	rm -f e3
