@@ -16,7 +16,7 @@ e3_link:
 # use this to checkout e3 from git
 e3_from_git:
 	echo "Attempting to clone e3 repo from $(E3_URL)"
-	git clone -b $(BRANCH) --depth 1 $(E3_URL)
+	git clone -b $(E3_BRANCH) --depth 1 $(E3_URL)
 
 clean:
 	rm -f e3
