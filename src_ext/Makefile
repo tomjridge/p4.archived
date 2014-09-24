@@ -2,8 +2,10 @@ SHELL=bash
 
 E3_LINK=../../e3
 E3_URL=https://github.com/tomjridge/e3.git
-# the following line checks out the version of e3 corresponding to the branch of p4 we are on (eg dev or master)
-E3_BRANCH=$(shell git symbolic-ref --short -q HEAD)
+# the following line checks out the version of e3 corresponding to the
+# branch of p4 we are on (eg dev or master)
+TRAVIS_BRANCH?=$(shell git symbolic-ref --short -q HEAD)
+E3_BRANCH=$(TRAVIS_BRANCH)
 
 all: 
 	echo "Please link the e3 repository into this directory (see the rest of this Makefile for example)"
