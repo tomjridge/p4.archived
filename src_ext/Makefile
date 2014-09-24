@@ -2,7 +2,7 @@ SHELL=bash
 
 E3_LINK=../../e3
 E3_URL=https://github.com/tomjridge/e3.git
-BRANCH=master
+BRANCH=dev
 
 all: 
 	echo "Please link the e3 repository into this directory (see the rest of this Makefile for example)"
