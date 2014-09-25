@@ -51,8 +51,8 @@ $(NATIVES): %.native: %.ml p4.cmxa
 	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
 
 
-doc: $(P4)
-	$(OCAMLDOC) -html $(P4:.cmo=.ml)
+doc: p4_lib.mli
+	$(OCAMLDOC) -html p4_lib.mli
 
 
 depend:
