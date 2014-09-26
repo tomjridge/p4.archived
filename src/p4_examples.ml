@@ -114,6 +114,32 @@ let _ = start_stop "example nkv" f
 let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
 let _ = start_stop "example yq5" f
 
+(* with dummy actions *)
+let parse_E () = 
+  let parse_E = ref (mk_pre_parser ()) in
+  let _ = mkntparser_ref parse_E (
+    let alts = lazy(alts [
+      (!parse_E >-- !parse_E >- !parse_E) >> (fun _ -> ());
+      (rhs parse_1) >> (fun _ -> ());
+      (rhs parse_eps) >> (fun _ -> ())])
+    in
+    fun () -> Lazy.force alts)
+  in
+  let _ = 
+    let tbl = Hashtbl.create 100 in
+    parse_E := memo_p3 tbl (!parse_E)
+  in
+  !parse_E
+
+let f () = String.make 20 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example 7jv" f
+
+let f () = String.make 40 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example mqu" f
+
+let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example ls4" f
+
 
 (**********************************************************************)
 (* further examples, combinators *)
