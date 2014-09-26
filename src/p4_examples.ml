@@ -4,6 +4,16 @@ open P4_core
 open P4_e3
 *)
 
+
+(* to get a visual indication of runtime *)
+let start_stop s f = 
+  let t1 = Sys.time () in
+  let _ = print_string ("Start "^s^" ...") in
+  let _ = f () in
+  let t2 = Sys.time () in
+  let _ = print_endline ("...stop in "^(string_of_float (t2 -. t1))^" seconds") in
+  ()
+
 let c = content
 
 (* comparing two lists, which represent sets, ignoring ordering *)
@@ -70,6 +80,44 @@ let p = !parse_E
 *)
 let txt = "111111111111111111111111111111"
 let _ = assert ([30] = run_parser3_string p txt)
+
+
+(**********************************************************************)
+(* some timing examples *)
+
+let parse_E () = 
+  let parse_E = ref (mk_pre_parser ()) in
+  let _ = mkntparser_ref parse_E (
+    let alts = lazy(alts [
+      (!parse_E >-- !parse_E >- !parse_E) >> (fun ((x,y),z) -> x+y+z);
+      rhs parse_1;
+      rhs parse_eps])
+    in
+    fun () -> Lazy.force alts)
+  in
+  let _ = 
+    let tbl = Hashtbl.create 100 in
+    parse_E := memo_p3 tbl (!parse_E)
+  in
+  !parse_E
+
+let p = parse_E ()
+let txt = String.make 20 '1'
+let _ = assert ([20] = run_parser3_string p txt)
+
+let f () = String.make 20 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example ldf" f
+
+let f () = String.make 40 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example nkv" f
+
+let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
+let _ = start_stop "example yq5" f
+
+
+(**********************************************************************)
+(* further examples, combinators *)
+
 
 
 (* parse trees *)
