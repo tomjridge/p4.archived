@@ -353,3 +353,83 @@ let p = !_G 1
 let _ = assert(["1234567891011"] = run_parser3_string p "1234567891011")
 let _ = assert([] = run_parser3_string p "1234567891012")
 
+
+(**********************************************************************)
+(* indentation-sensitive parsing *)
+
+(* whitespace is as before, except that any newline must be followed by exactly n spaces *)
+let re n = "[ ]*\\(\n"^(String.make n ' ')^"\\)?"
+
+(*
+let txt = "  \n  "
+let reg = re 3
+let _ = 
+  let b = Str.string_match (Str.regexp reg) txt 0 in
+  try Some(Str.matched_string txt) with _ -> None
+*)
+
+let w n = parse_RE (re n)
+
+
+let _L : (int -> (string,lambda) parser3 identified) ref= ref(fun _ -> failwith "ljx")
+
+let _ = _L := fun n  -> 
+  let p = ref (mk_pre_parser()) in
+  let v = parse_RE "[a-z]" in (* variables *)
+  let alts = lazy(alts[
+      ((rhs (a "\\")) >- (w n) >- v >- (w n) >- !p)
+        >> (fun ((((_,_),x),_),body) -> `Lam(c x,body));  (* \\ x body *)
+      ((rhs !p) >- (w (n+1)) >- (!_L (n+1)))
+        >> (fun ((x,_),y) -> `App(x,y));  (* p q - application *)
+      (rhs v)
+        >> (fun x -> `Var (c x));  (* x - variable *)
+      ((rhs (a "(")) >- (w n) >- !p >- (w n) >- (a ")")) 
+        >> (fun ((((_,_),body),_),_) -> `Bracket(body))  (* ( body ) *)
+    ])
+  in
+  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  !p
+
+let _ = 
+  let tbl = Hashtbl.create 100 in
+  _L := memo tbl !_L
+
+let p = !_L 0
+
+(* note two possible parses *)
+let _ = assert(
+  set_equal
+    [`App (`App (`Var "f", `Var "x"), `Var "y");
+     `App (`Var "f", `App (`Var "x", `Var "y"))]
+    (run_parser3_string p "f x y"))
+
+(* one parse, because of indentation *)
+let _ = assert(
+[`App (`App (`Var "f", `Var "x"), `Var "y")] =  
+run_parser3_string p "f 
+ x
+ y")
+
+(* again, one parse, disambiguated via indentation; here the y must be
+   part of an application with x as first component *)
+let _ = assert(
+  [`App (`Var "f", `App (`Var "x", `Var "y"))] =
+run_parser3_string p "f
+ x
+  y")
+
+(* here y and z are part of an application with x as the first component *)
+let _ = assert(
+  [`App (`Var "f", `App (`App (`Var "x", `Var "y"), `Var "z"))] = 
+run_parser3_string p "f
+ x
+  y
+  z")
+
+(* now z is part of an application with y as first component *)
+let _ = assert(
+  [`App (`Var "f", `App (`Var "x", `App (`Var "y", `Var "z")))] = 
+run_parser3_string p "f
+ x
+  y
+   z")
