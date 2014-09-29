@@ -286,6 +286,37 @@ let [("abcdef","")] = run_parser3_string p "abcdef"
 
 
 (**********************************************************************)
+(* lambda calculus example *)
+
+type lambda = [ 
+    `App of 'a * 'a
+  | `Bracket of 'a 
+  | `Lam of string * 'a
+  | `Var of string ] 
+  constraint 'a = lambda
+
+let parse_lambda : (string,lambda) parser3 identified = 
+  let p = ref (mk_pre_parser()) in
+  let w = parse_RE "[ ]*" in (* whitespace *)
+  let v = parse_RE "[a-z]" in (* variables *)
+  let ( >- ) p q = (p >- w >- q) >> (fun ((x,_),y) -> (x,y)) in (* parsers separated by whitespace *)
+  let alts = lazy(alts[
+      ((rhs (a "\\")) >- v >- !p)      >> (fun ((_,x),body) -> `Lam(c x,body));  (* \\ x body *)
+      ((rhs !p) >- !p)                 >> (fun (x,y) -> `App(x,y));  (* p q - application *)
+      (rhs v)                          >> (fun x -> `Var (c x));  (* x - variable *)
+      ((rhs (a "(")) >- !p >- (a ")")) >> (fun ((_,body),_) -> `Bracket(body))  (* ( body ) *)
+      ])
+  in
+  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  !p
+
+let _ = assert(
+  [`Lam ("x", `Bracket (`App (`Var "x", `Bracket (`App (`Var "y", `Var "z")))))]
+  =
+  run_parser3_string parse_lambda "\\ x (x (y z))")
+
+
+(**********************************************************************)
 (* going beyond context-free grammars *)
 
 (* _G 1 parses "1", or "1" followed by _G 2; in general, _G n parses
