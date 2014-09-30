@@ -433,3 +433,18 @@ run_parser3_string p "f
  x
   y
    z")
+
+let _ = assert(
+[`App
+   (`App
+      (`App (`Var "f", `App (`Var "x", `App (`Var "y", `Var "z"))),
+       `App (`App (`Var "a", `Var "b"), `Var "c")),
+    `Var "d")] = 
+run_parser3_string p "f
+ x
+  y
+   z
+ a
+  b
+  c
+ d")
