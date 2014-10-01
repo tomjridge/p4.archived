@@ -4,6 +4,11 @@ open P4_core
 open P4_e3
 *)
 
+(* update GC params *)
+
+let _ = 
+  let open Gc in
+  set { (get()) with max_overhead=1000000; space_overhead=1000000 }
 
 (* to get a visual indication of runtime *)
 let start_stop s f = 
@@ -28,7 +33,11 @@ let mkntparser_ref r alts =
 
 let mkntparser_lazy p lazy_alts = mkntparser p (fun () -> Lazy.force lazy_alts)
 
+
+(**********************************************************************)
 (* examples *)
+
+
 let parse_1 = (a "1") >>> (fun (`SS(s,i,j)) -> 1)
 let parse_eps = (a "") >>> (fun _ -> 0)
 
@@ -139,6 +148,15 @@ let _ = start_stop "example mqu" f
 
 let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
 let _ = start_stop "example ls4" f
+
+(* Sample output:
+Start example ldf ......stop in 0.01427 seconds
+Start example nkv ......stop in 0.166413 seconds
+Start example yq5 ......stop in 0.774756 seconds
+Start example 7jv ......stop in 0.015108 seconds
+Start example mqu ......stop in 0.165307 seconds
+Start example ls4 ......stop in 0.772494 seconds
+*)
 
 
 (**********************************************************************)
