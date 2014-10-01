@@ -448,3 +448,119 @@ run_parser3_string p "f
   b
   c
  d")
+
+(* a python-seque example *)
+
+let re n = "[ ]*\\(\n"^(String.make n ' ')^"\\)?"
+let w n = parse_RE (re n)
+
+let _if = a "if"
+let _then = a "then"
+let _else = a "else"
+let _atomic = a "atomic_statement"
+let _bexp = a "bexp"
+
+type statement = [  
+  | `Atomic
+  | `Seq of 'a list
+  | `If_then_else of ( string * 'a * 'a)
+  | `If_then of ( string * 'a)]
+  constraint 'a = statement
+
+(* _STMT is a (non-sequence) statement; _STMTS is a sequence of statements *)
+let _STMT : (int -> (string,statement) parser3 identified) ref = ref(fun _ -> failwith "ljx")
+let _STMTS : (int -> (string,statement) parser3 identified) ref = ref(fun _ -> failwith "ljx")
+
+let _ = _STMT := fun n  -> 
+  let p = ref (mk_pre_parser()) in
+  let alts = lazy(alts[
+      (rhs _atomic) >> (fun _ -> `Atomic);
+      ((rhs _if) >- (w (n+1)) >- _bexp >- (w n) >- 
+       _then >- (w (n+1)) >- 
+         (!_STMTS (n+1)) >- (w n) >-
+       _else >- (w (n+1)) >- 
+         (!_STMTS (n+1)))
+      >> (fun (((((((((((_,_),b),_),_),_),ss1),_),_),_),ss2)) -> `If_then_else (c b,ss1,ss2));
+      ((rhs _if) >- (w (n+1)) >- _bexp >- (w n) >- 
+       _then >- (w (n+1)) >- 
+         (!_STMTS (n+1)))
+      >> (fun ((((((_,_),b),_),_),_),ss1) -> `If_then (c b,ss1))
+    ])
+  in
+  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  !p
+
+let _ = 
+  let tbl = Hashtbl.create 100 in
+  _STMT := memo tbl !_STMT
+
+let _ = _STMTS := fun n  -> 
+  let p = ref (mk_pre_parser()) in
+  let alts = lazy(alts[
+      (rhs (sepby1 (!_STMT n) (w n)))
+        >> (fun xs -> `Seq(xs));
+    ])
+  in
+  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  !p
+
+let _ = 
+  let tbl = Hashtbl.create 100 in
+  _STMTS := memo tbl !_STMTS
+
+
+let p = !_STMTS 0
+
+(* simple example: an atomic statement followed by an if-then-else *)
+let _ = assert(
+[`Seq [`Atomic; `If_then_else ("bexp", `Seq [`Atomic], `Seq [`Atomic])]] =
+run_parser3_string p "atomic_statement 
+if bexp then
+ atomic_statement
+else
+ atomic_statement")
+
+(* using indentation to disambiguate: the else belongs to the outer
+   if-then-else *)
+let _ = assert(
+[`Seq
+   [`Atomic;
+    `If_then_else
+      ("bexp", `Seq [`If_then ("bexp", `Seq [`Atomic])], `Seq [`Atomic])]] =
+run_parser3_string p "atomic_statement 
+if bexp then
+ if bexp then
+  atomic_statement
+else
+ atomic_statement")
+
+(* three statements in a sequence *)
+let _ = assert(
+[`Seq
+   [`Atomic;
+    `If_then_else
+      ("bexp", `Seq [`If_then ("bexp", `Seq [`Atomic])], `Seq [`Atomic]);
+    `Atomic]] =
+run_parser3_string p "atomic_statement 
+if bexp then
+ if bexp then
+  atomic_statement
+else
+ atomic_statement
+atomic_statement")
+
+(* two statements; here the indentation of final atomic_statement
+   means that it is attached to the then clause of the first if-then *)
+let _ = assert(
+[`Seq
+   [`Atomic;
+    `If_then
+      ("bexp",
+       `Seq [`If_then_else ("bexp", `Seq [`Atomic], `Seq [`Atomic]); `Atomic])]] =
+run_parser3_string p "atomic_statement 
+if bexp then
+ if bexp then
+  atomic_statement
+ else
+  atomic_statement
+ atomic_statement")
