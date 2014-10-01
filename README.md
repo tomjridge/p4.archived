@@ -11,6 +11,8 @@ more complicated interface. Compared to P3:
     
   * The interface allows to go beyond context-free grammars. In
     particular, infinitely many non-terminals are supported, as the
-    grammar is generated lazily, on-demand.
+    grammar is generated lazily, on-demand. See the section
+    "indentation-sensitive parsing" in `src/p4_examples.ml` for
+    examples.
     
 

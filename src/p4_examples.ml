@@ -449,7 +449,7 @@ run_parser3_string p "f
   c
  d")
 
-(* a python-seque example *)
+(* a python-esque example *)
 
 let re n = "[ ]*\\(\n"^(String.make n ' ')^"\\)?"
 let w n = parse_RE (re n)
