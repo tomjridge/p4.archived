@@ -13,7 +13,8 @@ all:
 # use this if you already have a local copy of e3
 e3_link:
 	echo "Attempting to link e3 project into src_ext, assuming e3 is available at $(E3_LINK)"
-	if [ -d $(E3_LINK) ]; then ln -s $(E3_LINK) ./e3; else echo "Failed to find $(E3_LINK) directory"; exit 1; fi
+	if [ -d $(E3_LINK) ] && [ ! -e ./e3 ]; then ln -s $(E3_LINK) ./e3; fi
+	if [ ! -e ./e3 ]; then echo "Failed to find ./e3 link"; exit 1; fi
 
 # use this to checkout e3 from git
 e3_from_git:
