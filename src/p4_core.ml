@@ -219,7 +219,7 @@ let (_:('a,'b)parser3 -> ('a,'b) rhs) = rhs
 let seq rhs cl0 =
   let i = Gensym.gen_int() in
   let rhs_syms = lazy (rhs.rhs_syms ()) in
-  let rev_rhs_syms = lazy (List.rev (Lazy.force rhs_syms)) in (* FIXME note ugliness with reversing the order of the syms when looking up in the oracle *)
+  let rev_rhs_syms = lazy (List.rev (Lazy.force rhs_syms)) in (* FIXME note ugliness with reversing the order of the syms when looking up in the oracle; so rhs_syms should be returned in reverse order perhaps? *)
   {
     rhs_syms=(fun () -> (Lazy.force rhs_syms)@[i,cl0.sp]);
     rhs_act=(fun i0 -> 
