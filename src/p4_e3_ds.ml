@@ -97,11 +97,11 @@ type 'a ty_result = <
 open E3_core
 
 
-let nt_items_for_nt (np:'a S.nt) (i:int) = 
+let nt_items_for_nt (np:'a S.nt) (_,_,i) = 
   let rhss = (S.np_rhss np) () in
   ((List.map (fun r -> (np,[],r,i,i)) rhss): 'a S.nt_item list)
 
-let (_: 'a S.nt -> int -> 'a S.nt_item list) = nt_items_for_nt
+let (_: 'a S.nt -> ('a*int*int) -> 'a S.nt_item list) = nt_items_for_nt
 
 (* if we omit the dummy argument (_:'string), then later we appear to be unable to use mkops nt_items_for_nt polymorphically; an alternative might be to define these after nt_items_for_nt *)
 
@@ -122,7 +122,7 @@ let mk_ops (_:'string) = (
 (*    hd_a2          =(fun (_,(_,a)::_,_,_,_) -> a); *)
     a2             =(fun (_,_as,_,_,_) -> _as);
     hd_b2          =(fun (_,_,(_,b)::_,_,_) -> b);
-    nt_items_for_nt=(nt_items_for_nt: 'string S.nt -> int -> 'string S.nt_item list);
+    nt_items_for_nt=nt_items_for_nt;
     mk_item        =id;
     dest_item      =(fun (x: 'string S.item) -> x);
     tm_dot_i9      =(fun (tm,i) -> i);
@@ -348,7 +348,7 @@ let post_process (s,ctxt) = (
 
 let earley_full_from_record_type setup0 = (
   let nt = P4_core.(match setup0.std_sym with | NP np -> np | _ -> failwith "earley_full_from_record_type: start symbol not an nt") in
-  let init_items = List.map (fun x -> `NTITM x) (nt_items_for_nt nt 0) in
+  let init_items = List.map (fun x -> `NTITM x) (nt_items_for_nt nt (setup0.std_string,0,0)) in
   let len = setup0.std_length in
   let ctxt = { 
     string5=setup0.std_string; 
@@ -362,7 +362,7 @@ let earley_full_from_record_type setup0 = (
   
 
 let earley_full setup0 = (
-  let init_items = List.map (fun x -> `NTITM x) (nt_items_for_nt setup0#std_sym 0) in
+  let init_items = List.map (fun x -> `NTITM x) (nt_items_for_nt setup0#std_sym (setup0#std_string,0,0)) in
   let len = setup0#std_length in
   match setup0#std_sets_maps with
   | None -> (
