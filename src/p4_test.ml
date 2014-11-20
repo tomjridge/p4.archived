@@ -103,7 +103,7 @@ let test_1 () =
      (["E"; "E"], "E", 4, 4, [4])]
   in
   let _ = assert(rs = expected_results) in
-  let _ = assert([4] = run_parser3_string !_E txt) in
+  let _ = assert([4] = run_parser_string !_E txt) in
   ()
   
 (* some basic testing *)
@@ -131,7 +131,7 @@ let test_2 () =
   let _ = _G := mkntparser !_G (fun () -> Lazy.force _G_alts) in
   let p = !_E in
   let txt = "1111" in
-  let _ = assert([4] = run_parser3_string p txt) in
+  let _ = assert([4] = run_parser_string p txt) in
   (* we also check that the oracle and tmoracle are correct *)
   let (o,tmo) = run_earley p txt (String.length txt) in
   (* for o, we expect that checking (!_F).sp gives us a substring of

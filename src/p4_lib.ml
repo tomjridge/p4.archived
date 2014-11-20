@@ -38,8 +38,8 @@ type 'b hashvalue = 'b P4_core.hashvalue
 let memo_p3 = P4_core.memo_p3
 
 
-let run_parser3 = P4_e3.run_parser3
-let run_parser3_string = P4_e3.run_parser3_string
+let run_parser = P4_e3.run_parser
+let run_parser_string = P4_e3.run_parser_string
 
 
 let a = P4_basic_parsers.a

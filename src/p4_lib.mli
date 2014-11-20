@@ -1,3 +1,18 @@
+(**
+
+   This library makes ubiquitous use of tagging. In short, many
+   objects are tagged with ints. It is important that the creation of
+   these integer tags is controlled: there is a big difference between
+   (let i = gensym() in fun () -> (i,())) and (fun () -> (gensym
+   (),()).
+
+   It is not obvious to me how to reflect this generativity in the
+   types. For now, the type ('a identified) is defined to be equal to
+   'a. A function with type ('a -> 'b identified) indicates that the
+   object that results from calling the function has a gensymmed tag
+   attached to it.
+
+*)
 type 'a identified
 
 
@@ -37,6 +52,7 @@ val alts: ('a,'b)rhs identified list -> ('a,'b)alts
 
 val mk_pre_parser: unit -> ('a,'b)parser3 identified  (* parser for nonterminal; the alts and act will fail *)
 
+(** The following does not generate a new identifier - it replaces the alts component of the original *)
 val mkntparser: ('a,'b)parser3 identified -> (unit -> ('c,'d) alts) -> ('c,'d)parser3 identified
 
 
@@ -46,8 +62,8 @@ type 'b hashvalue
 val memo_p3: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 identified -> ('a,'b)parser3 identified
 
 
-val run_parser3: ('a,'b)parser3 identified -> 'a -> int -> 'b list
-val run_parser3_string: (string,'b)parser3 identified -> string -> 'b list
+val run_parser: ('a,'b)parser3 identified -> 'a -> int -> 'b list
+val run_parser_string: (string,'b)parser3 identified -> string -> 'b list
 
 
 

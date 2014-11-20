@@ -58,7 +58,7 @@ let _ =
 
 let p = !parse_E
 let txt = "111111"
-let _ = assert([6] = run_parser3_string p txt)
+let _ = assert([6] = run_parser_string p txt)
 
 
 (* example with explicit memoization *)
@@ -88,7 +88,7 @@ let p = !parse_E
    http://rosettacode.org/wiki/Find_limit_of_recursion#OCaml
 *)
 let txt = "111111111111111111111111111111"
-let _ = assert ([30] = run_parser3_string p txt)
+let _ = assert ([30] = run_parser_string p txt)
 
 
 (**********************************************************************)
@@ -112,15 +112,15 @@ let parse_E () =
 
 let p = parse_E ()
 let txt = String.make 20 '1'
-let _ = assert ([20] = run_parser3_string p txt)
+let _ = assert ([20] = run_parser_string p txt)
 
-let f () = String.make 20 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 20 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example ldf" f
 
-let f () = String.make 40 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 40 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example nkv" f
 
-let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 60 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example yq5" f
 
 (* with dummy actions *)
@@ -140,13 +140,13 @@ let parse_E () =
   in
   !parse_E
 
-let f () = String.make 20 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 20 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example 7jv" f
 
-let f () = String.make 40 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 40 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example mqu" f
 
-let f () = String.make 60 '1' |> run_parser3_string (parse_E ())
+let f () = String.make 60 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example ls4" f
 
 (* Sample output:
@@ -183,7 +183,7 @@ let txt = "11"
 let _ = assert (
   set_equal 
     [`Node (`LF "", `LF "1", `LF "1"); `Node (`LF "1", `LF "", `LF "1"); `Node (`LF "1", `LF "1", `LF "")]
-    (run_parser3_string p txt))
+    (run_parser_string p txt))
 
 
 (* defining other combinators; note that these definitions work
@@ -197,9 +197,9 @@ let parse_maybe p =
   mkntparser p' (fun () -> alts)
 
 let p = (parse_maybe parse_1)
-let _ = assert ([Some 1] = run_parser3_string p "1")
-let _ = assert ([None] = run_parser3_string p "")
-let _ = assert ([] = run_parser3_string p "11")
+let _ = assert ([Some 1] = run_parser_string p "1")
+let _ = assert ([None] = run_parser_string p "")
+let _ = assert ([] = run_parser_string p "11")
 
 
 (* iterate a parser n times; following is purely meta - don't need to
@@ -215,7 +215,7 @@ let rec itern n p = (
 
 let p = itern 5 parse_1
 let txt = "11111"
-let _ = assert ([[1; 1; 1; 1; 1]] = run_parser3_string p txt)
+let _ = assert ([[1; 1; 1; 1; 1]] = run_parser_string p txt)
 
 
 (* no memo; star aka many *)
@@ -232,8 +232,8 @@ let star p = (
 let rec parse_E = (star parse_1)
 
 let p = parse_E
-let _ = assert([[1; 1; 1; 1; 1]] = run_parser3_string p "11111")
-let _ = assert ([[]] = run_parser3_string p "")
+let _ = assert([[1; 1; 1; 1; 1]] = run_parser_string p "11111")
+let _ = assert ([[]] = run_parser_string p "")
 
 (* the following gives the same (perhaps unexpected) result as the
    above; we only allow good trees! Note the star(parse_eps |||| ...) *)
@@ -245,7 +245,7 @@ let rec parse_E =
   let p = mkntparser (mk_pre_parser ()) (fun () -> Lazy.force alts) in
   star p
 
-let _ = assert([[1; 1; 1; 1; 1]] = run_parser3_string parse_E "11111")
+let _ = assert([[1; 1; 1; 1; 1]] = run_parser_string parse_E "11111")
 
 
 (* 1 or more *)
@@ -259,8 +259,8 @@ let many1 p =
 let rec parse_E = (many1 parse_1)
 
 let p = parse_E
-let _ = assert([[1; 1; 1; 1; 1]] = run_parser3_string p "11111")
-let _ = assert ([] = run_parser3_string p "")
+let _ = assert([[1; 1; 1; 1; 1]] = run_parser_string p "11111")
+let _ = assert ([] = run_parser_string p "")
 
 
 (* sepby1, from "Monadic Parser Combinators", Hutton & Meijer, 1996 *)
@@ -275,7 +275,7 @@ let sepby1 p sep = (
   mkntparser_lazy (mk_pre_parser ()) alts)
 
 let p = sepby1 parse_1 (a ";")
-let _ = assert([[1;1;1;1]] = run_parser3_string p "1;1;1;1")
+let _ = assert([[1;1;1;1]] = run_parser_string p "1;1;1;1")
 
 
 (* bracket, from "Monadic Parser Combinators" *)
@@ -291,7 +291,7 @@ let abra = a "["
 let aket = a "]"
 let p = bracket abra p1 aket
 let txt = "[1;1;1;1]"
-let _ = assert([[1;1;1;1]] = run_parser3_string p txt)
+let _ = assert([[1;1;1;1]] = run_parser_string p txt)
 
 (* etc etc *)
 
@@ -299,8 +299,8 @@ let _ = assert([[1;1;1;1]] = run_parser3_string p txt)
 let p = mkntparser_lazy (mk_pre_parser()) (lazy(alts[
   ((parse_not_RE "X") >-- (parse_RE ".*")) >> (fun (x,y) -> (c x,c y))]))
 
-let [("abc","Xdef")] = run_parser3_string p "abcXdef"
-let [("abcdef","")] = run_parser3_string p "abcdef"
+let [("abc","Xdef")] = run_parser_string p "abcXdef"
+let [("abcdef","")] = run_parser_string p "abcdef"
 
 
 (**********************************************************************)
@@ -331,7 +331,7 @@ let parse_lambda : (string,lambda) parser3 identified =
 let _ = assert(
   [`Lam ("x", `Bracket (`App (`Var "x", `Bracket (`App (`Var "y", `Var "z")))))]
   =
-  run_parser3_string parse_lambda "\\ x (x (y z))")
+  run_parser_string parse_lambda "\\ x (x (y z))")
 
 
 (**********************************************************************)
@@ -368,8 +368,8 @@ let _ =
 
 let p = !_G 1
 
-let _ = assert(["1234567891011"] = run_parser3_string p "1234567891011")
-let _ = assert([] = run_parser3_string p "1234567891012")
+let _ = assert(["1234567891011"] = run_parser_string p "1234567891011")
+let _ = assert([] = run_parser_string p "1234567891012")
 
 
 (**********************************************************************)
@@ -419,12 +419,12 @@ let _ = assert(
   set_equal
     [`App (`App (`Var "f", `Var "x"), `Var "y");
      `App (`Var "f", `App (`Var "x", `Var "y"))]
-    (run_parser3_string p "f x y"))
+    (run_parser_string p "f x y"))
 
 (* one parse, because of indentation *)
 let _ = assert(
 [`App (`App (`Var "f", `Var "x"), `Var "y")] =  
-run_parser3_string p "f 
+run_parser_string p "f 
  x
  y")
 
@@ -432,14 +432,14 @@ run_parser3_string p "f
    part of an application with x as first component *)
 let _ = assert(
   [`App (`Var "f", `App (`Var "x", `Var "y"))] =
-run_parser3_string p "f
+run_parser_string p "f
  x
   y")
 
 (* here y and z are part of an application with x as the first component *)
 let _ = assert(
   [`App (`Var "f", `App (`App (`Var "x", `Var "y"), `Var "z"))] = 
-run_parser3_string p "f
+run_parser_string p "f
  x
   y
   z")
@@ -447,7 +447,7 @@ run_parser3_string p "f
 (* now z is part of an application with y as first component *)
 let _ = assert(
   [`App (`Var "f", `App (`Var "x", `App (`Var "y", `Var "z")))] = 
-run_parser3_string p "f
+run_parser_string p "f
  x
   y
    z")
@@ -458,7 +458,7 @@ let _ = assert(
       (`App (`Var "f", `App (`Var "x", `App (`Var "y", `Var "z"))),
        `App (`App (`Var "a", `Var "b"), `Var "c")),
     `Var "d")] = 
-run_parser3_string p "f
+run_parser_string p "f
  x
   y
    z
@@ -532,7 +532,7 @@ let p = !_STMTS 0
 (* simple example: an atomic statement followed by an if-then-else *)
 let _ = assert(
 [`Seq [`Atomic; `If_then_else ("bexp", `Seq [`Atomic], `Seq [`Atomic])]] =
-run_parser3_string p "atomic_statement 
+run_parser_string p "atomic_statement 
 if bexp then
  atomic_statement
 else
@@ -545,7 +545,7 @@ let _ = assert(
    [`Atomic;
     `If_then_else
       ("bexp", `Seq [`If_then ("bexp", `Seq [`Atomic])], `Seq [`Atomic])]] =
-run_parser3_string p "atomic_statement 
+run_parser_string p "atomic_statement 
 if bexp then
  if bexp then
   atomic_statement
@@ -559,7 +559,7 @@ let _ = assert(
     `If_then_else
       ("bexp", `Seq [`If_then ("bexp", `Seq [`Atomic])], `Seq [`Atomic]);
     `Atomic]] =
-run_parser3_string p "atomic_statement 
+run_parser_string p "atomic_statement 
 if bexp then
  if bexp then
   atomic_statement
@@ -575,7 +575,7 @@ let _ = assert(
     `If_then
       ("bexp",
        `Seq [`If_then_else ("bexp", `Seq [`Atomic], `Seq [`Atomic]); `Atomic])]] =
-run_parser3_string p "atomic_statement 
+run_parser_string p "atomic_statement 
 if bexp then
  if bexp then
   atomic_statement

@@ -12,7 +12,7 @@ let run_earley p txt len = (
 
 let (_:('a,'b)parser3 -> 'a -> int -> ('a ty_oracle * 'a ty_tmoracle)) = run_earley
 
-let run_parser3' p txt len (o,tmo) = (
+let run_parser' p txt len (o,tmo) = (
   let ss = (`SS(txt,0,len)) in
   let inr = {
     ss4=ss;
@@ -24,14 +24,14 @@ let run_parser3' p txt len (o,tmo) = (
   p.act inr)
 
 (* NB staging! run_parser3 p does significant work *)
-let run_parser3 p txt len = (
+let run_parser p txt len = (
   let (o,tmo) = run_earley p txt len in
-  run_parser3' p txt len (o,tmo))
+  run_parser' p txt len (o,tmo))
 
-let (_: ('a,'b)parser3 -> 'a -> int -> 'b list) = run_parser3
+let (_: ('a,'b)parser3 -> 'a -> int -> 'b list) = run_parser
 
-let run_parser3_string p txt = run_parser3 p txt (String.length txt)
-let (_: (string,'b)parser3 -> string -> 'b list) = run_parser3_string
+let run_parser_string p txt = run_parser p txt (String.length txt)
+let (_: (string,'b)parser3 -> string -> 'b list) = run_parser_string
 
 
 
@@ -110,7 +110,7 @@ val mk_pre_parser: unit -> ('a,'b)parser3 identified  (* parser for nonterminal;
 
 val mkntparser: ('a,'b)parser3 identified -> (unit -> ('c,'d) alts) -> ('c,'d)parser3 identified
 
-val run_parser3: ('a,'b)parser3 -> 'a -> int -> 'b list
+val run_parser: ('a,'b)parser3 -> 'a -> int -> 'b list
 
 
 val read_file_as_string: string -> string option
@@ -153,7 +153,7 @@ let mk_pre_parser = P4_core.mk_pre_parser
 
 let mkntparser = P4_core.mkntparser
 
-let run_parser3 = run_parser3
+let run_parser = run_parser
 
 
 let read_file_as_string = P4_util.read_file_as_string
