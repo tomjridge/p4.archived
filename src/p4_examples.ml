@@ -76,7 +76,7 @@ let parse_E =
 
 let _ =
   let tbl = Hashtbl.create 100 in
-  parse_E := memo_p3 tbl (!parse_E)
+  parse_E := memo_p tbl (!parse_E)
 
 let p = !parse_E
 (* if running in try.ocamlpro.com, this blows the stack :( 
@@ -103,7 +103,7 @@ let parse_E () =
   in
   let _ = 
     let tbl = Hashtbl.create 100 in
-    _E := memo_p3 tbl (!_E)
+    _E := memo_p tbl (!_E)
   in
   !_E
 
@@ -130,7 +130,7 @@ let parse_E () =
   in
   let _ = 
     let tbl = Hashtbl.create 100 in
-    _E := memo_p3 tbl (!_E)
+    _E := memo_p tbl (!_E)
   in
   !_E
 

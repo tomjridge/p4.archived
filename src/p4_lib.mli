@@ -59,7 +59,7 @@ val mkntparser: ('a,'b)parser3 identified -> (unit -> ('c,'d) alts) -> ('c,'d)pa
 
 type hashkey
 type 'b hashvalue
-val memo_p3: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 identified -> ('a,'b)parser3 identified
+val memo_p: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 identified -> ('a,'b)parser3 identified
 
 
 val run_parser: ('a,'b)parser3 identified -> 'a -> int -> 'b list

@@ -35,7 +35,7 @@ let mkntparser = P4_core.mkntparser
 
 type hashkey = P4_core.hashkey
 type 'b hashvalue = 'b P4_core.hashvalue
-let memo_p3 = P4_core.memo_p3
+let memo_p = P4_core.memo_p
 
 
 let run_parser = P4_e3.run_parser

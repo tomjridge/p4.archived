@@ -450,14 +450,14 @@ module P4_memo = struct
     let k = (lc4,`SS(Box.box_get_key i.box4,l,h)) in (* about 10% slowdown if we include box key *)
     Some k)
   
-  let memo_p3 tbl p = (
+  let memo_p tbl p = (
     let act' = memo tbl key_of_input p.act in
     {p with act=act'})
 
-  let (_: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 -> ('a,'b)parser3) = memo_p3
+  let (_: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 -> ('a,'b)parser3) = memo_p
 
   (* some additional functions used by the code generator - slight abbreviations of the above *)
-  let memo_mkntparser tbl p alts = memo_p3 tbl (mkntparser p alts)
+  let memo_mkntparser tbl p alts = memo_p tbl (mkntparser p alts)
 
   let (_: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 -> (unit -> ('a,'b)alts) -> ('a,'b)parser3) = memo_mkntparser
 
