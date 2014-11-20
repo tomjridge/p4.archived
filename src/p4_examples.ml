@@ -27,9 +27,11 @@ let set_equal xs ys = (
   subset xs ys && subset ys xs)
 
 
+(*
 let mkntparser_ref r alts = 
   let _ = r := mkntparser (!r) alts in
   ()
+*)
 
 let mkntparser_lazy p lazy_alts = mkntparser p (fun () -> Lazy.force lazy_alts)
 
@@ -43,38 +45,36 @@ let parse_eps = (a "") >>> (fun _ -> 0)
 
 
 (* example with no memoization *)
-let parse_E = ref (mk_pre_parser ())
 
 (* FIXME are we really sure the actions are getting set properly? *)
 
-let _ = 
-  mkntparser_ref parse_E (
-    let alts = lazy(alts [
-      (!parse_E >-- !parse_E >- !parse_E) >> (fun ((x,y),z) -> x+y+z);
+let parse_E = 
+  let _E = ref (mk_pre_parser ()) in
+  let _ = _E := mkntparser_lazy (!_E) (lazy(alts [
+      (!_E >-- !_E >- !_E) >> (fun ((x,y),z) -> x+y+z);
       rhs parse_1;
-      rhs parse_eps])
-    in
-    fun () -> Lazy.force alts)
+      rhs parse_eps]))
+  in
+  !_E
 
-let p = !parse_E
+let p = parse_E
 let txt = "111111"
 let _ = assert([6] = run_parser_string p txt)
 
 
 (* example with explicit memoization *)
 
-let parse_E = ref (mk_pre_parser ())
 
-let _ = 
-  mkntparser_ref parse_E (
-    let alts = lazy(alts [
-      (!parse_E >-- !parse_E >- !parse_E) >> (fun ((x,y),z) -> x+y+z);
+let parse_E = 
+  let _E = ref (mk_pre_parser ()) in
+  let _ = _E := mkntparser_lazy (!_E) (lazy(alts[
+      (!_E >-- !_E >- !_E) >> (fun ((x,y),z) -> x+y+z);
       rhs parse_1;
-      rhs parse_eps])
-    in
-    fun () -> Lazy.force alts)
+      rhs parse_eps]))
+  in
+  _E
 
-let _ = 
+let _ =
   let tbl = Hashtbl.create 100 in
   parse_E := memo_p3 tbl (!parse_E)
 
@@ -95,20 +95,17 @@ let _ = assert ([30] = run_parser_string p txt)
 (* some timing examples *)
 
 let parse_E () = 
-  let parse_E = ref (mk_pre_parser ()) in
-  let _ = mkntparser_ref parse_E (
-    let alts = lazy(alts [
+  let _E = ref (mk_pre_parser ()) in
+  let _ = _E := mkntparser_lazy (!_E) (lazy(alts [
       (!parse_E >-- !parse_E >- !parse_E) >> (fun ((x,y),z) -> x+y+z);
       rhs parse_1;
-      rhs parse_eps])
-    in
-    fun () -> Lazy.force alts)
+      rhs parse_eps]))
   in
   let _ = 
     let tbl = Hashtbl.create 100 in
-    parse_E := memo_p3 tbl (!parse_E)
+    _E := memo_p3 tbl (!_E)
   in
-  !parse_E
+  !_E
 
 let p = parse_E ()
 let txt = String.make 20 '1'
@@ -125,20 +122,17 @@ let _ = start_stop "example yq5" f
 
 (* with dummy actions *)
 let parse_E () = 
-  let parse_E = ref (mk_pre_parser ()) in
-  let _ = mkntparser_ref parse_E (
-    let alts = lazy(alts [
-      (!parse_E >-- !parse_E >- !parse_E) >> (fun _ -> ());
+  let _E = ref (mk_pre_parser ()) in
+  let _ = _E := mkntparser_lazy (!_E) (lazy(alts[
+      (!_E >-- !_E >- !_E) >> (fun _ -> ());
       (rhs parse_1) >> (fun _ -> ());
-      (rhs parse_eps) >> (fun _ -> ())])
-    in
-    fun () -> Lazy.force alts)
+      (rhs parse_eps) >> (fun _ -> ())]))
   in
   let _ = 
     let tbl = Hashtbl.create 100 in
-    parse_E := memo_p3 tbl (!parse_E)
+    _E := memo_p3 tbl (!_E)
   in
-  !parse_E
+  !_E
 
 let f () = String.make 20 '1' |> run_parser_string (parse_E ())
 let _ = start_stop "example 7jv" f
@@ -167,18 +161,16 @@ Start example ls4 ......stop in 0.772494 seconds
 (* parse trees *)
 type pt = [ `LF of string | `Node of pt * pt * pt ]
 
-let parse_E : (string,pt)parser3 identified ref = ref (mk_pre_parser ())
-
-let _ = 
-  mkntparser_ref parse_E (
-    let alts = lazy(alts [
-      (!parse_E >-- !parse_E >- !parse_E) >> (fun ((x,y),z) -> `Node(x,y,z));
+let parse_E : (string,pt) parser3 identified = 
+  let _E = ref (mk_pre_parser ()) in
+  let _ = _E := mkntparser_lazy (!_E) (lazy(alts [
+      (!_E >-- !_E >- !_E) >> (fun ((x,y),z) -> `Node(x,y,z));
       (rhs parse_1) >> (fun _ -> `LF("1"));
-      (rhs parse_eps) >> (fun _ -> `LF(""))])
-    in
-    fun () -> Lazy.force alts)
+      (rhs parse_eps) >> (fun _ -> `LF(""))]))
+  in
+  !_E
 
-let p = !parse_E
+let p = parse_E
 let txt = "11"
 let _ = assert (
   set_equal 
@@ -189,12 +181,11 @@ let _ = assert (
 (* defining other combinators; note that these definitions work
    regardless of the input type (lexed tokens, strings, etc) *)
 let parse_maybe p =
-  let p' = mk_pre_parser () in
   let alts = alts [
     (rhs parse_eps) >> (fun _ -> None);
     (rhs p) >> (fun x -> Some x)]
   in
-  mkntparser p' (fun () -> alts)
+  mkntparser (mk_pre_parser()) (fun () -> alts)
 
 let p = (parse_maybe parse_1)
 let _ = assert ([Some 1] = run_parser_string p "1")
@@ -205,13 +196,12 @@ let _ = assert ([] = run_parser_string p "11")
 (* iterate a parser n times; following is purely meta - don't need to
    define new nts *)
 let rec itern n p = (
-  let p' = mk_pre_parser () in
   let rec rhs' m = (match m with 
     | 0 -> (rhs parse_eps >> (fun _ -> []))
     | _ -> ((rhs' (m-1) >- p) >> (fun (xs,x) -> xs@[x])))
   in
   let alts = alts[rhs' n] in
-  mkntparser p' (fun () -> alts))
+  mkntparser (mk_pre_parser ()) (fun () -> alts))
 
 let p = itern 5 parse_1
 let txt = "11111"
@@ -225,7 +215,7 @@ let star p = (
     rhs parse_eps >> (fun _ -> []);
     (p >-- !star_p) >> (fun (x,xs) -> x::xs)])
   in
-  let _ = star_p := mkntparser !star_p (fun () -> Lazy.force alts) in
+  let _ = star_p := mkntparser_lazy !star_p alts in
   !star_p)
 
 
@@ -242,7 +232,7 @@ let rec parse_E =
     rhs parse_eps;
     rhs parse_1])
   in
-  let p = mkntparser (mk_pre_parser ()) (fun () -> Lazy.force alts) in
+  let p = mkntparser_lazy (mk_pre_parser ()) alts in
   star p
 
 let _ = assert([[1; 1; 1; 1; 1]] = run_parser_string parse_E "11111")
@@ -325,7 +315,7 @@ let parse_lambda : (string,lambda) parser3 identified =
       ((rhs (a "(")) >- !p >- (a ")")) >> (fun ((_,body),_) -> `Bracket(body))  (* ( body ) *)
       ])
   in
-  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  let _ = p := mkntparser_lazy (!p) alts in
   !p
 
 let _ = assert(
@@ -405,7 +395,7 @@ let _ = _L := fun n  ->
         >> (fun ((((_,_),body),_),_) -> `Bracket(body))  (* ( body ) *)
     ])
   in
-  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  let _ = p := mkntparser_lazy (!p) alts in
   !p
 
 let _ = 
@@ -505,7 +495,7 @@ let _ = _STMT := fun n  ->
       >> (fun ((((((_,_),b),_),_),_),ss1) -> `If_then (c b,ss1))
     ])
   in
-  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  let _ = p := mkntparser_lazy (!p) alts in
   !p
 
 let _ = 
@@ -519,7 +509,7 @@ let _ = _STMTS := fun n  ->
         >> (fun xs -> `Seq(xs));
     ])
   in
-  let _ = p := mkntparser (!p) (fun () -> Lazy.force alts) in
+  let _ = p := mkntparser_lazy (!p) alts in
   !p
 
 let _ = 
