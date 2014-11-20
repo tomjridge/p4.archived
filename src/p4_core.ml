@@ -160,7 +160,10 @@ type 'string tm_plus = {
 
 type 'string ty_rhs_syms_list = (int * 'string sym_plus) list
 
+(*
 and 'string ty_rule = 'string ty_rhs_syms_list
+*)
+
 
 and 'string nt_plus = {
   np_nt: nonterm;
