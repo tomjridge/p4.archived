@@ -323,6 +323,65 @@ let _ = assert(
   =
   run_parser_string parse_lambda "\\ x (x (y z))")
 
+(**********************************************************************)
+(* logic *)
+
+(* individuals from the domain of quantification *)
+type ind = [
+  `Var of string
+  | `Int of int]
+
+(* propositions *)
+type prop = [  
+  `Equals of ind * ind]
+
+(* 'b is the type of propositions e.g. including x=y *)
+type 'b logic = [ 
+    `Forall of string * 'a
+  | `Exists of string * 'a
+  | `Bracket of 'a
+  | `Conj of 'a * 'a
+  | `Disj of 'a * 'a
+  | `Implies of 'a * 'a
+  | `Not of 'a 
+  | `Prop of 'b] 
+  constraint 'a = 'b logic
+
+let ind : (string,ind) parser3 identified = 
+  mkntparser_lazy (mk_pre_parser()) (lazy(alts[
+      (rhs(parse_RE "[a-z]+")) >> (fun x -> x|>c|>(fun x -> `Var x));
+      (rhs(parse_RE "[0-9]+")) >> (fun x -> x|>c|>int_of_string|>(fun x -> `Int x))
+    ]))
+
+let prop : (string,prop) parser3 identified = 
+  let w = parse_RE "[ ]*" in (* whitespace *)
+  let ( >- ) p q = (p >- w >- q) >> (fun ((x,_),y) -> (x,y)) in (* parsers separated by whitespace *)
+  mkntparser_lazy (mk_pre_parser()) (lazy(alts[
+      ((rhs ind) >- (a "=") >- ind) >> (fun ((l,_),r) -> `Equals(l,r))
+    ]))
+
+(* parameterized parsing - the parameter is used to parse domain expressions *)
+let parse_logic : (string,prop) parser3 identified -> (string,prop logic) parser3 identified = fun h0 ->
+  let p = ref (mk_pre_parser()) in
+  let w = parse_RE "[ ]*" in (* whitespace *)
+  let v = parse_RE "[a-z]+" in (* variables *)
+  let ( >- ) p q = (p >- w >- q) >> (fun ((x,_),y) -> (x,y)) in (* parsers separated by whitespace *)
+  let alts = lazy(alts[
+      ((rhs (a "!")) >- v >- !p)      >> (fun ((_,x),body) -> `Forall(c x,body));  (* ! x body *)
+      ((rhs (a "?")) >- v >- !p)      >> (fun ((_,x),body) -> `Exists(c x,body));  (* ? x body *)
+      ((rhs !p) >- (a "/\\") >- !p)   >> (fun ((x,_),y) -> `Conj(x,y));
+      ((rhs !p) >- (a "\\/") >- !p)   >> (fun ((x,_),y) -> `Disj(x,y));
+      ((rhs !p) >- (a "-->") >- !p)   >> (fun ((x,_),y) -> `Implies(x,y));
+      ((rhs h0)                       >> (fun x -> `Prop x));
+      ((rhs (a "(")) >- !p >- (a ")")) >> (fun ((_,body),_) -> `Bracket(body));
+      ])
+  in
+  let _ = p := mkntparser_lazy (!p) alts in
+  !p
+
+let _ = 
+  run_parser_string (parse_logic prop) "! x ! y (((1=2) /\\ (x=y)) --> (3=4))"
+
 
 (**********************************************************************)
 (* going beyond context-free grammars *)
