@@ -1,69 +1,35 @@
 SHELL=bash
 
-CAMLC=$(shell command -v ocamlc.opt || command -v ocamlc || echo missing_ocamlc)
-CAMLOPT=$(shell command -v ocamlopt.opt || command -v ocamlopt || echo missing_ocamlopt)
-CAMLDEP=$(shell command -v ocamldep.opt || command -v ocamldep || echo missing_ocamldep) -one-line
-OCAMLDOC=$(shell command -v ocamldoc.opt || command -v ocamldoc || echo missing_ocamldoc)
+SRC_DIR:=../src
+MLS_TO_EXEC:=p4_examples.ml p4_test.ml # executables
+IGNORE_FOR_LIB:=$(MLS_TO_EXEC) interactive.ml # don't want these in the lib
+MLS_FOR_LIB:=$(shell ocamlfind ocamldep -sort *.ml)
+MLS_FOR_LIB:=$(filter-out $(IGNORE_FOR_LIB), $(MLS_FOR_LIB)) # p1_examples.ml is an executable
+CMO:=$(MLS_FOR_LIB:.ml=.cmo)
+
+LIB:=p4
+
+CAMLCINCLUDES=str.cma -I ../src_ext/e3/build e3.cma
+CAMLOPTINCLUDES=str.cmxa -I ../src_ext/e3/build e3.cmxa
 
 # FIXME probably want to look at warning 8 a bit more closely
 WARNINGS=-w -8 #-w -26-8
 COMPFLAGS=$(WARNINGS)
 
-CAMLCINCLUDES=str.cma
-CAMLOPTINCLUDES=str.cmxa
+all: ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa
+	make before_all
+	make $(CMO) p4.cma p4.cmxa $(MLS_TO_EXEC:.ml=.native)
 
-E3=e3_core.cmo
-
-P4=p4_util.cmo \
-p4_core.cmo \
-p4_e3_ds.cmo \
-p4_e3.cmo \
-p4_basic_parsers.cmo \
-p4_lib.cmo \
-
-CMO=$(E3) $(P4)
-
-NATIVES=p4_examples.native p4_test.native# 
-
-all: p4.cma p4.cmxa $(NATIVES)
-
-
-p4.cma: $(CMO)
-	$(CAMLC) $(CAMLCINCLUDES) -a -o $@ $(CMO)
-
-p4.cmxa: $(CMO:.cmo=.cmx)
-	$(CAMLOPT) -a -o $@ $(CMO:.cmo=.cmx)
-
-$(NATIVES): %.native: %.ml p4.cmxa
-	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -o $@ p4.cmxa $<
-
-
-# Default rules
-.SUFFIXES: .ml .mli .cmo .cmi .cmx
-
-.ml.cmo:
-	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c $<
-
-.mli.cmi:
-	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c $<
-
-.ml.cmx:
-	$(CAMLOPT) $(FORPACK) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $<
-
+../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa:
+	cd ../src_ext/e3/build && make
 
 doc: p4_lib.mli
-	$(OCAMLDOC) -html p4_lib.mli
+	-mkdir ocamldoc
+	$(OCAMLDOC) -d ocamldoc -html p4_lib.mli
 
-
-depend:
-	$(CAMLDEP) $(INCLUDES) *.mli *.ml >.depend
-
-include .depend
-
+include Makefile.include
 
 clean:
-	rm -f $(CMO) $(CMO:.cmo=.cmi) $(CMO:.cmo=.cmx) $(NATIVES:.native=.cmo) $(NATIVES:.native=.cmi) $(NATIVES:.native=.cmx) 
-	rm -f *.cma *.cmxa *.a $(CMO:.cmo=.o) *.native $(NATIVES:.native=.o) 
+	rm -f *.ml *.mli *.cmo *.cmi *.cmx *.native *.a *.o *.cma *.cmxa
 	rm -f *.{html,css}
-
-realclean:
+	rm -rf ocamldoc

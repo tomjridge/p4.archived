@@ -1,13 +1,12 @@
-e3_core.cmi :
 p4_lib.cmi :
-e3_core.cmo : e3_core.cmi
-e3_core.cmx : e3_core.cmi
+interactive.cmo :
+interactive.cmx :
 p4_basic_parsers.cmo : p4_core.cmo
 p4_basic_parsers.cmx : p4_core.cmx
 p4_core.cmo :
 p4_core.cmx :
-p4_e3_ds.cmo : p4_core.cmo e3_core.cmi
-p4_e3_ds.cmx : p4_core.cmx e3_core.cmx
+p4_e3_ds.cmo : p4_core.cmo
+p4_e3_ds.cmx : p4_core.cmx
 p4_e3.cmo : p4_util.cmo p4_e3_ds.cmo p4_core.cmo
 p4_e3.cmx : p4_util.cmx p4_e3_ds.cmx p4_core.cmx
 p4_examples.cmo : p4_lib.cmi
