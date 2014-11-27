@@ -16,8 +16,7 @@ CAMLOPTINCLUDES=str.cmxa -I ../src_ext/e3/build e3.cmxa
 WARNINGS=-w -8 #-w -26-8
 COMPFLAGS=$(WARNINGS)
 
-all: ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa
-	make before_all
+all: ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa before_all
 	make $(CMO) p4.cma p4.cmxa $(MLS_TO_EXEC:.ml=.native)
 
 ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa:
