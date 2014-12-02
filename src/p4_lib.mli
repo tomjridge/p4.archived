@@ -68,7 +68,7 @@ val run_parser: ('a,'b)parser3 identified -> 'a -> int -> 'b list
 val run_parser_string: (string,'b)parser3 identified -> string -> 'b list
 
 
-
+val parse_EOF: unit -> (string, string ty_span)parser3 identified
 val a: string -> (string, string ty_span)parser3 identified
 val until_a: string -> (string, string ty_span)parser3 identified
 val parse_RE: string -> (string, string ty_span)parser3 identified

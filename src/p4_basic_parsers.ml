@@ -4,6 +4,16 @@ open P4_core
 open P4_lib
 *)
 
+(* default action *)
+let default_act = fun x -> [x]
+
+let pre_parse_EOF : 'a ty_span -> int list = function (`SS(s,i,j)) -> 
+    if i=j then [j] else [] (* FIXME note that this assumes j is the end of input *) 
+
+(* FIXME note that this needs to have a unit arg otherwise the type var is not generalized :( *)
+let parse_EOF : unit -> ('a,'a ty_span)parser3= (fun () ->
+  mktmparser pre_parse_EOF default_act)
+
 let memo f = (
   let tbl = Hashtbl.create 100 in
   let key_of_input i = i in
@@ -16,8 +26,6 @@ let memo f = (
       let _ = Hashtbl.add tbl k v in
       v)
 
-(* default action *)
-let default_act = fun x -> [x]
 
 (* string -> parser3' *)
 let a = 

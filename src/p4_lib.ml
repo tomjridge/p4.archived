@@ -43,7 +43,7 @@ let memo_p = P4_core.memo_p
 let run_parser = P4_e3.run_parser
 let run_parser_string = P4_e3.run_parser_string
 
-
+let parse_EOF = P4_basic_parsers.parse_EOF
 let a = P4_basic_parsers.a
 let until_a = P4_basic_parsers.until_a
 let parse_RE = P4_basic_parsers.parse_RE
