@@ -32,6 +32,8 @@ let mk_pre_parser = P4_core.mk_pre_parser
 
 let mkntparser = P4_core.mkntparser
 
+let mkntparser_lazy = P4_core.mkntparser_lazy
+
 
 type hashkey = P4_core.hashkey
 type 'b hashvalue = 'b P4_core.hashvalue

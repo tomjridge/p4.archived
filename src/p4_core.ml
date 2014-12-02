@@ -428,6 +428,10 @@ let check_and_upd_lc4 p = (match p.sp with
 let mkntparser p alts = (
   check_and_upd_lc4 (mkntparser' p alts))
 
+(* convenience method *)
+let mkntparser_lazy : ('a, 'b) pre_clause -> ('c, 'd) alts Lazy.t -> ('c, 'd) pre_clause = 
+  fun p lazy_alts -> mkntparser p (fun () -> Lazy.force lazy_alts)
+
 
 module P4_memo = struct
 
@@ -467,6 +471,7 @@ module P4_memo = struct
 end
 
 include P4_memo      
+
 
 
 

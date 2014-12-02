@@ -33,8 +33,6 @@ let mkntparser_ref r alts =
   ()
 *)
 
-let mkntparser_lazy p lazy_alts = mkntparser p (fun () -> Lazy.force lazy_alts)
-
 
 (**********************************************************************)
 (* examples *)
@@ -89,6 +87,24 @@ let p = !parse_E
 *)
 let txt = "111111111111111111111111111111"
 let _ = assert ([30] = run_parser_string p txt)
+
+
+(* mutual recursion *)
+
+let _E = ref (mk_pre_parser ()) 
+let _F = ref (mk_pre_parser ()) 
+let _ = 
+  _E := mkntparser_lazy (!_E) (lazy(alts[
+      (!_E >-- !_E >- !_E) >> (fun ((x,y),z) -> x+y+z);
+      (rhs !_F) >> (fun x -> x);
+      rhs parse_1;
+      rhs parse_eps]));
+  _F := mkntparser_lazy (!_F) (lazy(alts[
+      (!_E >-- !_E) >> (fun (x,y) -> x+y) ]))
+
+let p = !_E
+let txt = "11111"
+let _ = assert ([5] = run_parser_string p txt)
 
 
 (**********************************************************************)

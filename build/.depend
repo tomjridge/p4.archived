@@ -17,3 +17,5 @@ p4_test.cmo : p4_e3.cmo p4_core.cmo
 p4_test.cmx : p4_e3.cmx p4_core.cmx
 p4_util.cmo :
 p4_util.cmx :
+tmp.cmo : p4_lib.cmi
+tmp.cmx : p4_lib.cmx

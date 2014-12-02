@@ -55,6 +55,8 @@ val mk_pre_parser: unit -> ('a,'b)parser3 identified  (* parser for nonterminal;
 (** The following does not generate a new identifier - it replaces the alts component of the original *)
 val mkntparser: ('a,'b)parser3 identified -> (unit -> ('c,'d) alts) -> ('c,'d)parser3 identified
 
+val mkntparser_lazy: ('a,'b)parser3 identified -> (('c,'d) alts Lazy.t) -> ('c,'d)parser3 identified
+
 
 
 type hashkey
