@@ -13,6 +13,7 @@ src_ext: FORCE
 
 clean:
 	cd build && make clean
+	cd gen && make clean
 
 realclean:
 	cd src_ext && make realclean
