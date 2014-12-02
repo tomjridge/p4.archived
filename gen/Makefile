@@ -7,9 +7,18 @@ CAMLOPTINCLUDES:=$(CAMLCINCLUDES:.cma=.cmxa)
 
 P1_GEN:=../src_ext/p1/build/p1_gen_p4.native
 
-all: ../src_ext/p1/build/p1.cma ../src_ext/e3/build/e3.cma ../build/p4.cma $(P1_GEN)
+all: ../src_ext/p1/build/p1.cmxa ../src_ext/e3/build/e3.cmxa ../build/p4.cmxa $(P1_GEN)
 	make test.native
 	./test.native test.txt
+
+../src_ext/p1/build/p1.cmxa:
+	cd ../src_ext/p1/build && make
+
+../src_ext/e3/build/e3.cmxa:
+	cd ../src_ext/e3/build && make
+
+../build/p4.cmxa:
+	cd ../build && make
 
 test.ml: test.g 
 	$(P1_GEN) -g $< >$@
