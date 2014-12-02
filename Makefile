@@ -6,9 +6,10 @@ build: FORCE
 	cd build && make
 	./build/p4_test.native
 	./build/p4_examples.native
+	cd gen && make
 
 src_ext: FORCE
-	cd src_ext && make e3_from_git
+	cd src_ext && make e3_from_git p1_from_git
 
 clean:
 	cd build && make clean
