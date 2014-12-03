@@ -5,17 +5,17 @@ OCAMLDOC=ocamlfind ocamldoc
 
 COMPFLAGS?=# maybe set some additional compilation options
 
-SRC_DIR ?= "FIXME_SRC_DIR"
-MLS_TO_EXEC ?= "FIXME_MLS_TO_EXEC.ml"
-LIB ?= "FIXME_LIB"
-MLS_FOR_LIB ?= "FIXME_MLS_FOR_LIB.ml"
+SRC_DIR ?= FIXME_SRC_DIR
+MLS_TO_EXEC ?= FIXME_MLS_TO_EXEC.ml
+LIB ?= FIXME_LIB
+MLS_FOR_LIB ?= FIXME_MLS_FOR_LIB.ml
 
 before_all: 
 	make link 
 	make depend
 
 link: $(SRC_DIR)
-	find $(SRC_DIR) \( -name "*.ml" -or -name "*.mli" \) -maxdepth 1 -exec ln -sf \{\} . \;
+	find $(SRC_DIR) -maxdepth 1 \( -name "*.ml" -or -name "*.mli" \) -exec ln -sf \{\} . \;
 
 $(LIB).cma: $(MLS_FOR_LIB:.ml=.cmo)
 	$(CAMLC) $(COMPFLAGS) -a -o $@ $(CMO)
