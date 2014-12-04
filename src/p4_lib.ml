@@ -11,6 +11,7 @@ type ('a,'b) raw_act = ('a,'b) P4_core.raw_act
 type ('a,'b) parser3 = ('a,'b) P4_core.parser3
 
 let mktmparser = P4_core.mktmparser
+let mktmparser_raw = P4_core.mktmparser_raw
 
 
 type ('a,'b)rhs = ('a,'b) P4_core.rhs

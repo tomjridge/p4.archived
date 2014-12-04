@@ -332,6 +332,7 @@ let mk_tm tm rp act =
   let cl = { sp=sp; act=act} in
   cl
 
+
 (* FIXME don't need this and mk_tm? FIXME following is horrible *)
 let mktmparser rp ract = 
   let cl = mk_tm (mk_TM()) rp (fun x -> failwith "mktmparser") in
@@ -346,6 +347,10 @@ let mktmparser rp ract =
   {cl with act=f1}
 
 let (_:'a raw_parser -> ('a,'b)raw_act -> ('a,'b) parser3) = mktmparser
+
+let mktmparser_raw : 'a raw_parser -> ('a,'a ty_span) parser3 = fun rp ->
+  mktmparser rp (fun (`SS(s,i,j)) -> [`SS(s,i,j)])
+
 
 (**********************************************************************)
 (* context *)

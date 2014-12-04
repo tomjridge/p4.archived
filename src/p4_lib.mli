@@ -31,6 +31,7 @@ type ('string,'a) parser3
 
 val mktmparser: 'string raw_parser -> ('string,'a) raw_act -> ('string,'a) parser3 identified
 
+val mktmparser_raw: 'string raw_parser -> ('string,'string ty_span) parser3 identified
 
 
 type ('string,'a)rhs
