@@ -1,0 +1,204 @@
+#! /usr/bin/env ocamlscript
+(* simple build system based on defining action to run *)
+
+Ocaml.packs := ["unix";"str"]
+
+--
+
+
+(* copied from ocaml/utils/misc.ml *)
+let string_of_ic' ic =
+  let b = Buffer.create 0x10000 in
+  let buff = String.create 0x1000 in
+  let rec copy () =
+    let n = input ic buff 0 0x1000 in
+    if n = 0 then Buffer.contents b else
+      (Buffer.add_substring b buff 0 n; copy())
+  in copy()
+
+let read_ic_as_string ic = (
+  try
+    string_of_ic' ic
+  with _ -> failwith "read_ic_as_string")
+
+(* get contents of file as string; return option Some s if successful, None otherwise *)
+let read_file_as_string fn = (
+  try
+    let ic = open_in fn in
+    let s = string_of_ic' ic in
+    let _ = close_in ic in
+    Some s
+  with _ -> None)
+let (_:string -> string option) = read_file_as_string
+
+
+
+
+
+(* simplest model *)
+type 'a make_funs = {
+  make : 'a -> unit;
+}
+
+let unit_unit_make_funs : (unit -> unit) make_funs = {
+  make = fun x -> x();
+}
+
+
+(* more complex, with dependencies *)
+
+type action = 
+    Atomic of (unit -> unit)
+  | Deps of ((unit -> unit) * action list)
+
+
+let action_make_funs : action make_funs = {
+  make = (
+    let rec f1 act = (match act with
+        | Atomic f -> f ()
+        | Deps (f,deps) -> (
+            deps |> List.iter f1;
+            f ()))
+    in
+    f1)
+}
+      
+
+(* get timestamp of a file *)
+let tstamp : string -> float = fun f -> Unix.((stat f).st_mtime)
+
+(* get a .depend file in -one-line format and process it *)
+
+
+let process_depend string = 
+  let lines = Str.(split (regexp "\n") string) in
+  let ls = lines |> List.map (Str.(split (regexp "[: ]+"))) in
+  (* this tells us which files depend on which for cmo and cmi; we
+     also need to know how the ml and mlis depend; so we map .cmo to .ml
+     and .cmi to .mli, and filter the rest *)
+  let f1 l = Str.(global_replace (regexp "[.]cmo$") ".ml" l) in
+  let f2 l = Str.(global_replace (regexp ".*[.]cmx$") "" l) in
+  let f3 l = Str.(global_replace (regexp "[.]cmi$") ".mli" l) in
+  let f4 xs = xs |> List.map (fun x -> x |> f1 |> f2 |> f3) |> List.filter (fun x -> x <> "") in
+  ls |> List.map f4 |> List.filter (fun x -> x <> []) |> List.filter (fun x -> List.length x > 1)
+  |> List.map (fun (x::xs) -> (x,xs))
+
+
+let txt="
+p1_lib.cmi :
+p1_parse_grammar.cmi : p1_lib.cmi
+interactive.cmo :
+interactive.cmx :
+p1_cl.cmo : p1_lib.cmi p1_extra_combinators.cmo
+p1_cl.cmx : p1_lib.cmx p1_extra_combinators.cmx
+p1_core.cmo : p1_prelude.cmo
+p1_core.cmx : p1_prelude.cmx
+p1_examples.cmo : p1_lib.cmi
+p1_examples.cmx : p1_lib.cmx
+p1_extra.cmo : p1_core.cmo
+p1_extra.cmx : p1_core.cmx
+p1_extra_combinators.cmo : p1_lib.cmi
+p1_extra_combinators.cmx : p1_lib.cmx
+p1_gen.cmo : p1_parse_grammar.cmi p1_lib.cmi p1_gen_shared.cmo p1_extra_combinators.cmo p1_cl.cmo
+p1_gen.cmx : p1_parse_grammar.cmx p1_lib.cmx p1_gen_shared.cmx p1_extra_combinators.cmx p1_cl.cmx
+p1_gen_p4.cmo : p1_parse_grammar.cmi p1_lib.cmi p1_gen_shared.cmo p1_extra_combinators.cmo p1_cl.cmo
+p1_gen_p4.cmx : p1_parse_grammar.cmx p1_lib.cmx p1_gen_shared.cmx p1_extra_combinators.cmx p1_cl.cmx
+p1_gen_shared.cmo : p1_parse_grammar.cmi p1_lib.cmi p1_extra_combinators.cmo p1_cl.cmo
+p1_gen_shared.cmx : p1_parse_grammar.cmx p1_lib.cmx p1_extra_combinators.cmx p1_cl.cmx
+p1_lib.cmo : p1_util.cmo p1_parsers.cmo p1_core.cmo p1_lib.cmi
+p1_lib.cmx : p1_util.cmx p1_parsers.cmx p1_core.cmx p1_lib.cmi
+p1_parse_grammar.cmo : p1_lib.cmi p1_extra_combinators.cmo p1_parse_grammar.cmi
+p1_parse_grammar.cmx : p1_lib.cmx p1_extra_combinators.cmx p1_parse_grammar.cmi
+p1_parsers.cmo : p1_core.cmo
+p1_parsers.cmx : p1_core.cmx
+p1_prelude.cmo :
+p1_prelude.cmx :
+p1_util.cmo :
+p1_util.cmx :
+"
+
+let txt = "
+dummy.cmo :
+dummy.cmx :
+eee2.cmo :
+eee2.cmx :
+eee3.cmo :
+eee3.cmx :
+eee.cmo :
+eee.cmx :
+grammar.cmo :
+grammar.cmx :
+ocaml.cmo :
+ocaml.cmx :
+ocaml_p4.cmo :
+ocaml_p4.cmx :
+"
+
+(*
+let d0 = process_depend txt
+*)
+
+(* show files that depend on x, y st x -> y *)
+let depend deps x = (
+  deps |> List.filter (fun (y,xs) -> List.mem x xs) |> List.map (fun (y,_) -> y))
+
+(*
+let _ = depend d0 "p1_lib.mli"
+*)
+
+(* given some files that have changed (newer than their cmo) we need to find all ml and mli files that depend on these files *)
+
+
+let depends deps cs (* changed *) = 
+  let setify cs = List.sort_uniq Pervasives.compare cs in
+  let cs = setify cs in
+  let step cs = 
+    cs |> List.map (depend deps) |> List.concat
+  in
+  let rec f1 cs = 
+    let _new = step cs in
+    let cs' = setify(cs@_new) in
+    if cs' = cs then cs else f1 cs'
+  in
+  f1 cs
+  
+(*
+let c1 = depends d0 ["p1_lib.mli"]
+*)
+
+(* print out the changed in the right order for ocamlc *)
+let order deps cs = 
+  let rec f1 (xs,cs) = (match cs with 
+      | [] -> xs
+      | _ -> (
+          let c = List.find 
+              (fun x -> ( (depend deps x) |> List.filter (fun x -> List.mem x cs)) = []) 
+              cs 
+          in
+          let xs' = c::xs in
+          let cs' = cs |> List.filter (fun c' -> c <> c') in
+          f1 (xs',cs')))
+  in
+  f1 ([],cs)
+
+(*
+let _ = order d0 c1
+*)
+
+let args = Sys.argv |> Array.to_list
+
+(*
+let args = "orebuild"::".depend"::"a"::[]
+*)
+
+let main () = 
+  match args with
+  | _ :: x :: xs -> (
+      let Some(deps) = read_file_as_string x in
+      let deps = process_depend deps in
+      depends deps xs |> order deps |> String.concat " " |> print_endline)
+
+let _ = main ()
+
+      
+      
