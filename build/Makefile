@@ -2,6 +2,7 @@ SHELL:=bash
 
 CAMLCINCLUDES:=str.cma -I ../src_ext/e3/build e3.cma
 CAMLOPTINCLUDES:=str.cmxa -I ../src_ext/e3/build e3.cmxa
+COMPFLAGS:=-w -8 -w -23
 
 MLS:=$(filter-out interactive.ml, $(shell ocamlfind ocamldep -sort *.ml *.mli))
 SRC_DIR:=../src

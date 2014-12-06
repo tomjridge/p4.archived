@@ -2,7 +2,7 @@ CAMLC:=ocamlfind ocamlc
 CAMLOPT:=ocamlfind ocamlopt
 
 CAMLDEP:=ocamlfind ocamldep -one-line
-OREBUILD:=./orebuild
+#OREBUILD:=./orebuild
 OCAMLDOC:=ocamlfind ocamldoc
 
 COMPFLAGS?=# maybe set some additional compilation options
@@ -20,12 +20,12 @@ link: $(SRC_DIR)
 # this compiles all .ml and .mli files not just $(CMO)
 cmo: $(MLS)
 #	echo The following command will be run: $(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c `$(OREBUILD) .depend $?`
-	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c `$(OREBUILD) .depend $?`
+	$(CAMLC) $(CAMLCINCLUDES) $(COMPFLAGS) -c $(MLS)
 	touch cmo
 
 
 cmx: $(MLS) 
-	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c `$(OREBUILD) .depend $?`
+	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -c $(MLS)
 	touch cmx
 
 
