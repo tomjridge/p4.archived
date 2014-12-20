@@ -67,7 +67,7 @@ val memo_p: (hashkey,'b hashvalue) Hashtbl.t -> ('a,'b)parser3 identified -> ('a
 
 val run_parser: ('a,'b)parser3 identified -> 'a -> int -> 'b list
 val run_parser_string: (string,'b)parser3 identified -> string -> 'b list
-
+val run_earley: ('a,'b)parser3 identified -> 'a -> int -> unit  (* for debugging *)
 
 val parse_EOF: unit -> (string, string ty_span)parser3 identified
 val a: string -> (string, string ty_span)parser3 identified
