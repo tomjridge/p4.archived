@@ -182,7 +182,7 @@ let compare_item i1 i2 = (
 
 module Sets_maps = (struct
 
-  let max_array_size = 1000
+  let max_array_size = 127
 
   (* implementation as a hashtbl to unit *)
   let set_todo_done n = {
