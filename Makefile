@@ -3,20 +3,20 @@ all:
 	exit 1 # force an error to alert user
 
 build: FORCE
-	cd build && make
+	cd build && $(MAKE)
 	./build/p4_test.native
 	./build/p4_examples.native
-	cd gen && make
+	cd gen && $(MAKE)
 
 src_ext: FORCE
-	cd src_ext && make e3_from_git p1_from_git
+	cd src_ext && $(MAKE) e3_from_git p1_from_git
 
 clean:
-	cd build && make clean
-	cd gen && make clean
+	cd build && $(MAKE) clean
+	cd gen && $(MAKE) clean
 
 realclean:
-	cd src_ext && make realclean
-	cd build && make clean
+	cd src_ext && $(MAKE) realclean
+	cd build && $(MAKE) clean
 
 FORCE:
