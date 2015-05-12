@@ -21,15 +21,13 @@ in stdenv.mkDerivation {
       buildInputs = [ ocaml findlib e3 ];
     
 
-      patchPhase = ''
-        echo patching && echo ln -sf ${e3} $src/src_ext/e3
-      '';
+      patchPhase = "ln -sf ${e3} src_ext/e3";
 
-      buildPhase="cd $src && ls -al && make build";
+      buildPhase="cd build && make";
 
       configurePhase = "true"; 	# Skip configure
   
-#      installPhase = "true";
+      installPhase = "true";
     
       createFindlibDestdir = true;
     }
