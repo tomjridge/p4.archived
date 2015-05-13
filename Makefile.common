@@ -1,5 +1,7 @@
-E3_PKG:=-I ../../e3/build e3.cma # local development; comment when releasing; check via nix-build
-P1_PKG:=-I ../../p1/build p1.cma
-P1_GEN:=../../p1/build/p1_gen_p4.native # local development
+E3_PKG:=-package e3 # ocamlfind e3; uncomment when releasing
+P1_PKG:=-package p1
+P1_GEN:=p1_gen_p4.native
 
-# E3_PKG:=-package e3 # ocamlfind e3; uncomment when releasing
+# E3_PKG:=-I ../../e3/build e3.cma # local development; comment when releasing; check via nix-build
+# P1_PKG:=-I ../../p1/build p1.cma
+# P1_GEN:=../../p1/build/p1_gen_p4.native # local development

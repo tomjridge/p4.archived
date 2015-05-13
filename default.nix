@@ -3,6 +3,7 @@ let
     pkgs = import <nixpkgs> {};
     stdenv = pkgs.stdenv;
     fetchgit = pkgs.fetchgit;
+    p1 = import ./../p1 { }; 
     e3 = import ./../e3 { }; 
     ocaml=pkgs.ocaml_4_02_1; 
     findlib=pkgs.ocamlPackages_4_02_1.findlib;
@@ -16,15 +17,14 @@ in stdenv.mkDerivation {
   #    };
       src=./.;
     
-      buildInputs = [ ocaml findlib e3 ];
+      buildInputs = [ ocaml findlib e3 p1 ];
     
+      configurePhase = "true"; 	# Skip configure
 
 #      patchPhase = "ln -sf ${e3} src_ext/e3";
 
-      buildPhase="cd build && make && cd ..";
-
-      configurePhase = "true"; 	# Skip configure
-  
+#      buildPhase="cd build && make && cd ..";
+ 
       installPhase = "mkdir -p $out && cp -R * $out"; # so we can inspect the result
     
       createFindlibDestdir = true;

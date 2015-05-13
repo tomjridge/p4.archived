@@ -1,4 +1,4 @@
-SHELL=bash
+SHELL:=bash
 
 include ../Makefile.common
 
@@ -9,6 +9,8 @@ CAMLOPTINCLUDES:=$(CAMLCINCLUDES:.cma=.cmxa)
 
 all: 
 	make test.native
+
+test:
 	./test.native test.txt
 
 test.ml: test.g 
