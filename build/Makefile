@@ -1,7 +1,9 @@
 SHELL:=bash
 
-CAMLCINCLUDES:=str.cma -I ../src_ext/e3/build e3.cma
-CAMLOPTINCLUDES:=str.cmxa -I ../src_ext/e3/build e3.cmxa
+include ../Makefile.common
+
+CAMLCINCLUDES:=-package str $(E3_PKG)
+CAMLOPTINCLUDES:=-package str $(E3_PKG:.cma=.cmxa)
 COMPFLAGS:=-w -8 -w -23
 
 MLS:=$(filter-out interactive.ml, $(shell ocamlfind ocamldep -sort *.ml *.mli))
@@ -13,12 +15,12 @@ MLS_FOR_LIB:=$(filter-out $(IGNORE_FOR_LIB), $(MLS)) # p1_examples.ml is an exec
 LIB:=p4
 
 
-all: ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa before_all
+all: before_all
 	$(MAKE) cmo cmx
 	$(MAKE) $(LIB).cma $(LIB).cmxa $(MLS_TO_EXEC:.ml=.native)
 
-../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa:
-	cd ../src_ext/e3/build && make
+# ../src_ext/e3/build/e3.cma ../src_ext/e3/build/e3.cmxa:
+# 	cd ../src_ext/e3/build && make
 
 doc: p4_lib.mli
 	-mkdir ocamldoc

@@ -16,3 +16,7 @@ more complicated interface. Compared to P3:
     examples.
     
 
+# Build
+
+Depends on e3; install this via ocamlfind
+

@@ -1,13 +1,11 @@
 { }: 
-# nix-build default.nix -A p4.build
-# nix-shell default.nix -A p4.build
-# nix-shell default.nix -A p4.post_install
 let 
     pkgs = import <nixpkgs> {};
     stdenv = pkgs.stdenv;
     fetchgit = pkgs.fetchgit;
-   e3 = import ./../e3 { }; 
-ocaml=pkgs.ocaml_4_02_1; findlib=pkgs.ocamlPackages_4_02_1.findlib;
+    e3 = import ./../e3 { }; 
+    ocaml=pkgs.ocaml_4_02_1; 
+    findlib=pkgs.ocamlPackages_4_02_1.findlib;
 in stdenv.mkDerivation {
       name = "p4";
     
@@ -21,13 +19,13 @@ in stdenv.mkDerivation {
       buildInputs = [ ocaml findlib e3 ];
     
 
-      patchPhase = "ln -sf ${e3} src_ext/e3";
+#      patchPhase = "ln -sf ${e3} src_ext/e3";
 
-      buildPhase="cd build && make";
+      buildPhase="cd build && make && cd ..";
 
       configurePhase = "true"; 	# Skip configure
   
-      installPhase = "true";
+      installPhase = "mkdir -p $out && cp -R * $out"; # so we can inspect the result
     
       createFindlibDestdir = true;
     }
