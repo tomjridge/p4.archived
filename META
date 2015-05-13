@@ -1,0 +1,6 @@
+name="p4"
+description="P4 parsing library"
+version="0.1.0"
+depends=""
+archive(byte)="p4.cma"
+archive(native)="p4.cmxa"

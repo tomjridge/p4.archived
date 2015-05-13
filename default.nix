@@ -25,7 +25,7 @@ in stdenv.mkDerivation {
 
 #      buildPhase="cd build && make && cd ..";
  
-      installPhase = "mkdir -p $out && cp -R * $out"; # so we can inspect the result
+      postInstall = "mkdir -p $out && cp -R * $out"; # so we can inspect the result
     
       createFindlibDestdir = true;
     }

@@ -14,7 +14,7 @@ test:
 	./test.native test.txt
 
 test.ml: test.g 
-	$(P1_GEN) -g $< >$@
+	$(P1_GEN_P4) -g $< >$@
 
 test.native: test.ml
 	$(CAMLOPT) $(COMPFLAGS) $(CAMLOPTINCLUDES) -linkpkg -o $@ $<
