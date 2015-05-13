@@ -16,7 +16,7 @@ more complicated interface. Compared to P3:
     examples.
     
 
-# Build
+## Build
 
 Build following instructions for
 (example_grammars)[https://github.com/tomjridge/example_grammars.git]
