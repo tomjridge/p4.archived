@@ -18,5 +18,6 @@ more complicated interface. Compared to P3:
 
 # Build
 
-Depends on e3; install this via ocamlfind
+Build following instructions for
+(example_grammars)[https://github.com/tomjridge/example_grammars.git]
 
