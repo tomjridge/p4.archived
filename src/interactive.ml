@@ -1,4 +1,4 @@
-#directory "../src_ext/e3/build";;
+#directory "../../e3/build";;
 #load "e3.cma";;
 #mod_use "p4_util.ml";;
 #mod_use "p4_core.ml";;

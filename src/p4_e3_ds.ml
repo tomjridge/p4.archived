@@ -94,7 +94,7 @@ type 'a ty_result = <
 (**********************************************************************)
 (* the implementation of this module *)
 
-open E3_core
+open E3_core_types
 
 
 let nt_items_for_nt (np:'a S.nt) (_,_,i) = 
@@ -316,6 +316,70 @@ module Dummy = struct
 
 end
 
+(************************************************************************)
+(* set up a structure which we can use to instantiate E3_core.E3 *)
+
+module CC = struct
+
+  type 'string nt = 'string S.nt
+  type 'string tm = 'string S.tm
+  type 'string sym = 'string S.sym
+
+  type 'string nt_item = 'string S.nt_item
+
+  type 'string tm_item = 'string S.tm_item
+  type 'string sym_item = 'string S.sym_item
+  type 'string sym_list = 'string S.sym_list
+
+  type 'string item = 'string S.item
+  
+  type 'string set_todo_done =  ((int * int * int, int * int) sum, unit) Hashtbl.t
+
+  type 'string map_blocked_key = (int * int, (int * int * int, 'string S.nt_item) Hashtbl.t) Hashtbl.t 
+  type 'string map_complete_key = (int * int, (int * int * int, 'string S.sym_item) Hashtbl.t) Hashtbl.t
+  type 'string map_sym_sym_int_int = (int * int * int * int, (int, unit) Hashtbl.t) Hashtbl.t
+  type 'string map_tm_int = (int * int, (int, unit) Hashtbl.t) Hashtbl.t
+
+  type 'string ty_ctxt = ('string,'a,'s,'m) E3_core_types.ty_ctxt 
+  constraint 'a = <
+    nt         :'string nt         ;
+    tm         :'string tm         ;
+    sym        :'string sym        ;
+    tm_item    :'string tm_item    ;
+    sym_item   :'string sym_item   ;
+    sym_list   :'string sym_list   ;
+    nt_item    :'string nt_item    ;
+    item       :'string item       ;
+    string     :'string     ;
+  > constraint 's = <
+    todo_done: 'string item; 
+    set_todo_done: 'string set_todo_done;
+  > constraint 'm = <
+    sym:'string sym;
+    tm:'string tm;
+    nt_item: 'string nt_item;
+    sym_item: 'string sym_item;
+    sym_list   :'string sym_list   ;
+    map_blocked_key: 'string map_blocked_key;  
+    map_complete_key: 'string map_complete_key;  
+    map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+    map_tm_int: 'string map_tm_int;  
+  >
+
+  type 'string ty_loop2 = ('string,'a) E3_core_types.ty_loop2 
+    constraint 'a = <
+      item: 'string item;
+      set_todo_done: 'string set_todo_done;
+      map_blocked_key: 'string map_blocked_key;  
+      map_complete_key: 'string map_complete_key;  
+      map_sym_sym_int_int: 'string map_sym_sym_int_int;  
+      map_tm_int: 'string map_tm_int;  
+    >
+
+end  (* CC *)
+
+module E3_instantiated = E3_core.E3(CC)
+
 
 let mk_init_loop2 ctxt init_items = (
   let sets = ctxt.sets in
@@ -364,7 +428,7 @@ let earley_full_from_record_type setup0 = (
     sets=(Sets_maps.sets len); maps=(Sets_maps.maps len) } 
   in
   let init_state = mk_init_loop2 ctxt init_items in
-  let s = E3_core.earley ctxt init_state in
+  let s = E3_instantiated.earley ctxt init_state in
   post_process (s,ctxt))
   
 
@@ -380,7 +444,7 @@ let earley_full setup0 = (
         sets=(Sets_maps.sets len); maps=(Sets_maps.maps len) } 
       in
       let init_state = mk_init_loop2 ctxt init_items in
-      let s = E3_core.earley ctxt init_state in
+      let s = E3_instantiated.earley ctxt init_state in
       post_process (s,ctxt))
   | Some (sets,maps) -> (
       let ctxt = { 
@@ -391,7 +455,7 @@ let earley_full setup0 = (
         maps=maps } 
       in
       let init_state = mk_init_loop2 ctxt init_items in
-      let s = E3_core.earley ctxt init_state in
+      let s = E3_instantiated.earley ctxt init_state in
       post_process (s,ctxt)))
 
   
