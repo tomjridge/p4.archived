@@ -14,8 +14,9 @@ test: all
 clean:
 	cd build && $(MAKE) clean
 	cd gen && $(MAKE) clean
+	ocamlbuild -clean
 
 with_ocamlbuild:
-	ocamlbuild -cflags -I,$(ROOT_DIR)/../e3/build -cflags e3.cma p4_lib.cma
+	ocamlbuild -use-ocamlfind -cflags -I,$(ROOT_DIR)/../e3/build -cflags e3.cma p4_lib.cma
 
 FORCE:
