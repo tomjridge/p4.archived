@@ -5,8 +5,8 @@ let
     fetchgit = pkgs.fetchgit;
     p1 = import ./../p1 { }; 
     e3 = import ./../e3 { }; 
-    ocaml=pkgs.ocaml_4_02_1; 
-    findlib=pkgs.ocamlPackages_4_02_1.findlib;
+    ocaml=pkgs.ocaml; 
+    findlib=pkgs.ocamlPackages.findlib;
 in stdenv.mkDerivation {
       name = "p4";
     
